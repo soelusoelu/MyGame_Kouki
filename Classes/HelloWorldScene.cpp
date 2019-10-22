@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
@@ -115,6 +115,24 @@ bool HelloWorld::init()
         // add the sprite as a child to this layer
         this->addChild(sprite, 0);
     }
+
+    //OpenGLのエラーコードを受け取る変数
+    GLenum error;
+
+    m_pProgram = new GLProgram();
+    //シェーダーをテキストファイルから読み込んでコンパイル
+    m_pProgram->initWithFilenames("Shaders/shader_0tex.vsh", "Shaders/shader_0tex.fsh");
+    error = glGetError();
+    //attribute変数に属性インデックスを割り振る
+    m_pProgram->bindAttribLocation("a_position", GLProgram::VERTEX_ATTRIB_POSITION);
+    error = glGetError();
+    //シェーダープログラムをリンク
+    m_pProgram->link();
+    error = glGetError();
+    //uniform変数のリストを保存
+    m_pProgram->updateUniforms();
+    error = glGetError();
+
     return true;
 }
 
@@ -130,4 +148,30 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
     //_eventDispatcher->dispatchEvent(&customEndEvent);
 
 
+}
+
+void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags) {
+    GLenum error;
+    //指定したフラグに対応する属性インデックスだけを有効にして、他は無効にする
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION);
+    error = glGetError();
+    //シェーダーを有効化する
+    m_pProgram->use();
+    error = glGetError();
+
+    //三角形の3頂点分の座標
+    Vec3 pos[4];
+    const float x = 0.7f;
+    const float y = 0.7f;
+    //座標を1点ずつ設定
+    pos[0] = Vec3(-x, -y, 0);
+    pos[1] = Vec3(-x, y, 0);
+    pos[2] = Vec3(x, y, 0);
+    pos[3] = Vec3(x, -y, 0);
+    //指定した属性インデックスに、データを関連付ける
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, pos);
+    error = glGetError();
+    //3頂点分のデータで三角形を描画する
+    glDrawArrays(GL_QUADS, 0, 4);
+    error = glGetError();
 }

@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
@@ -39,6 +39,11 @@ public:
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
+
+    void draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags);
+
+private:
+    cocos2d::GLProgram* m_pProgram;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
