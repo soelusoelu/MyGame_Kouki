@@ -126,6 +126,9 @@ bool HelloWorld::init()
     //attribute変数に属性インデックスを割り振る
     m_pProgram->bindAttribLocation("a_position", GLProgram::VERTEX_ATTRIB_POSITION);
     error = glGetError();
+    //attribute変数に属性インデックスを割り振る
+    m_pProgram->bindAttribLocation("a_color", GLProgram::VERTEX_ATTRIB_COLOR);
+    error = glGetError();
     //シェーダープログラムをリンク
     m_pProgram->link();
     error = glGetError();
@@ -153,7 +156,7 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags) {
     GLenum error;
     //指定したフラグに対応する属性インデックスだけを有効にして、他は無効にする
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION);
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
     error = glGetError();
     //シェーダーを有効化する
     m_pProgram->use();
@@ -161,17 +164,26 @@ void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
 
     //三角形の3頂点分の座標
     Vec3 pos[4];
+    Vec3 color[4];
     const float x = 0.7f;
     const float y = 0.7f;
     //座標を1点ずつ設定
-    pos[0] = Vec3(-x, -y, 0);
-    pos[1] = Vec3(-x, y, 0);
-    pos[2] = Vec3(x, y, 0);
-    pos[3] = Vec3(x, -y, 0);
+    pos[0] = Vec3(-x, -y, 0.f);
+    pos[1] = Vec3(-x, y, 0.f);
+    pos[2] = Vec3(x, -y, 0.f);
+    pos[3] = Vec3(x, y, 0.f);
+    //カラーを1点ずつ設定
+    color[0] = Vec3(0.f, 0.f, 0.f);
+    color[1] = Vec3(1.f, 0.f, 0.f);
+    color[2] = Vec3(0.f, 1.f, 0.f);
+    color[3] = Vec3(0.f, 0.f, 1.f);
     //指定した属性インデックスに、データを関連付ける
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, pos);
     error = glGetError();
+    //指定した属性インデックスに、データを関連付ける
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 3, GL_FLOAT, GL_FALSE, 0, color);
+    error = glGetError();
     //3頂点分のデータで三角形を描画する
-    glDrawArrays(GL_QUADS, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     error = glGetError();
 }

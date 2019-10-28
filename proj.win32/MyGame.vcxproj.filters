@@ -38,4 +38,14 @@
       <Filter>resource</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resources\Shaders\shader_0tex.fsh">
+      <Filter>src</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Resources\Shaders\shader_0tex.vsh">
+      <Filter>src</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>
