@@ -42,9 +42,15 @@
     <None Include="..\Resources\Shaders\shader_0tex.fsh">
       <Filter>src</Filter>
     </None>
+    <None Include="..\Resources\Shaders\shader_1tex.fsh">
+      <Filter>src</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Resources\Shaders\shader_0tex.vsh">
+      <Filter>src</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shaders\shader_1tex.vsh">
       <Filter>src</Filter>
     </FxCompile>
   </ItemGroup>

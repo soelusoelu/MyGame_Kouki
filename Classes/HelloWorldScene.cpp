@@ -1,18 +1,18 @@
 ﻿/****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,25 +27,21 @@
 
 USING_NS_CC;
 
-Scene* HelloWorld::createScene()
-{
+Scene* HelloWorld::createScene() {
     return HelloWorld::create();
 }
 
 // Print useful error message instead of segfaulting when files are not there.
-static void problemLoading(const char* filename)
-{
+static void problemLoading(const char* filename) {
     printf("Error while loading: %s\n", filename);
     printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n");
 }
 
 // on "init" you need to initialize your instance
-bool HelloWorld::init()
-{
+bool HelloWorld::init() {
     //////////////////////////////
     // 1. super init first
-    if ( !Scene::init() )
-    {
+    if (!Scene::init()) {
         return false;
     }
 
@@ -58,21 +54,18 @@ bool HelloWorld::init()
 
     // add a "close" icon to exit the progress. it's an autorelease object
     auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+        "CloseNormal.png",
+        "CloseSelected.png",
+        CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
 
     if (closeItem == nullptr ||
         closeItem->getContentSize().width <= 0 ||
-        closeItem->getContentSize().height <= 0)
-    {
+        closeItem->getContentSize().height <= 0) {
         problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
-    }
-    else
-    {
-        float x = origin.x + visibleSize.width - closeItem->getContentSize().width/2;
-        float y = origin.y + closeItem->getContentSize().height/2;
-        closeItem->setPosition(Vec2(x,y));
+    } else {
+        float x = origin.x + visibleSize.width - closeItem->getContentSize().width / 2;
+        float y = origin.y + closeItem->getContentSize().height / 2;
+        closeItem->setPosition(Vec2(x, y));
     }
 
     // create menu, it's an autorelease object
@@ -87,15 +80,12 @@ bool HelloWorld::init()
     // create and initialize a label
 
     auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    if (label == nullptr)
-    {
+    if (label == nullptr) {
         problemLoading("'fonts/Marker Felt.ttf'");
-    }
-    else
-    {
+    } else {
         // position the label on the center of the screen
-        label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                                origin.y + visibleSize.height - label->getContentSize().height));
+        label->setPosition(Vec2(origin.x + visibleSize.width / 2,
+            origin.y + visibleSize.height - label->getContentSize().height));
 
         // add the label as a child to this layer
         this->addChild(label, 1);
@@ -103,14 +93,11 @@ bool HelloWorld::init()
 
     // add "HelloWorld" splash screen"
     auto sprite = Sprite::create("HelloWorld.png");
-    if (sprite == nullptr)
-    {
+    if (sprite == nullptr) {
         problemLoading("'HelloWorld.png'");
-    }
-    else
-    {
+    } else {
         // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+        sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 
         // add the sprite as a child to this layer
         this->addChild(sprite, 0);
@@ -121,7 +108,7 @@ bool HelloWorld::init()
 
     m_pProgram = new GLProgram();
     //シェーダーをテキストファイルから読み込んでコンパイル
-    m_pProgram->initWithFilenames("Shaders/shader_0tex.vsh", "Shaders/shader_0tex.fsh");
+    m_pProgram->initWithFilenames("Shaders/shader_1tex.vsh", "Shaders/shader_1tex.fsh");
     error = glGetError();
     //attribute変数に属性インデックスを割り振る
     m_pProgram->bindAttribLocation("a_position", GLProgram::VERTEX_ATTRIB_POSITION);
@@ -129,19 +116,27 @@ bool HelloWorld::init()
     //attribute変数に属性インデックスを割り振る
     m_pProgram->bindAttribLocation("a_color", GLProgram::VERTEX_ATTRIB_COLOR);
     error = glGetError();
+    //attribute変数に属性インデックスを割り振る
+    m_pProgram->bindAttribLocation("a_texCoord", GLProgram::VERTEX_ATTRIB_TEX_COORD);
+    error = glGetError();
     //シェーダープログラムをリンク
     m_pProgram->link();
     error = glGetError();
     //uniform変数のリストを保存
     m_pProgram->updateUniforms();
     error = glGetError();
+    //uniform変数の番号を取得
+    uniform_sampler = glGetUniformLocation(m_pProgram->getProgram(), "sampler");
+    //テクスチャ読み込み
+    m_pTexture = Director::getInstance()->getTextureCache()->addImage("kuppa.png");
+
+    Director::getInstance()->setClearColor(Color4F(1.f, 1.f, 1.f, 1.f));
 
     return true;
 }
 
 
-void HelloWorld::menuCloseCallback(Ref* pSender)
-{
+void HelloWorld::menuCloseCallback(Ref* pSender) {
     //Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
 
@@ -156,33 +151,49 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags) {
     GLenum error;
     //指定したフラグに対応する属性インデックスだけを有効にして、他は無効にする
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_TEX_COORD);
     error = glGetError();
     //シェーダーを有効化する
     m_pProgram->use();
     error = glGetError();
 
-    //三角形の3頂点分の座標
+    //四角形の4頂点分の座標
     Vec3 pos[4];
-    Vec3 color[4];
-    const float x = 0.7f;
-    const float y = 0.7f;
+    Vec4 color[4];
+    Vec2 uv[4];
+    const float x = 0.5f;
+    const float y = 0.5f;
+
     //座標を1点ずつ設定
     pos[0] = Vec3(-x, -y, 0.f);
     pos[1] = Vec3(-x, y, 0.f);
     pos[2] = Vec3(x, -y, 0.f);
     pos[3] = Vec3(x, y, 0.f);
+
     //カラーを1点ずつ設定
-    color[0] = Vec3(0.f, 0.f, 0.f);
-    color[1] = Vec3(1.f, 0.f, 0.f);
-    color[2] = Vec3(0.f, 1.f, 0.f);
-    color[3] = Vec3(0.f, 0.f, 1.f);
+    color[0] = Vec4(1.f, 1.f, 1.f, 1.f);
+    color[1] = Vec4(1.f, 1.f, 1.f, 1.f);
+    color[2] = Vec4(1.f, 1.f, 1.f, 1.f);
+    color[3] = Vec4(1.f, 1.f, 1.f, 1.f);
+
+    //テクスチャ座標を1点ずつ設定
+    uv[0] = Vec2(0.f, 1.f);
+    uv[1] = Vec2(0.f, 0.f);
+    uv[2] = Vec2(1.f, 1.f);
+    uv[3] = Vec2(1.f, 0.f);
+
     //指定した属性インデックスに、データを関連付ける
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, pos);
     error = glGetError();
     //指定した属性インデックスに、データを関連付ける
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 3, GL_FLOAT, GL_FALSE, 0, color);
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, 0, color);
     error = glGetError();
+    //指定した属性インデックスに、データを関連付ける
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, uv);
+    error = glGetError();
+    //指定したuniform変数にテクスチャを関連付ける
+    glUniform1i(uniform_sampler, 0);
+    GL::bindTexture2D(m_pTexture->getName());
     //3頂点分のデータで三角形を描画する
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     error = glGetError();
