@@ -100,7 +100,7 @@ bool HelloWorld::init() {
         sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 
         // add the sprite as a child to this layer
-        this->addChild(sprite, 0);
+        //this->addChild(sprite, 0);
     }
 
     //OpenGLのエラーコードを受け取る変数
@@ -157,12 +157,13 @@ void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
     Vec4 color[4];
     const float x = 50.f;
     const float y = 50.f;
+    const float z = 50.f;
 
     //座標を1点ずつ設定
-    pos[0] = Vec3(-x, -y, 0.f);
-    pos[1] = Vec3(-x, y, 0.f);
-    pos[2] = Vec3(x, -y, 0.f);
-    pos[3] = Vec3(x, y, 0.f);
+    pos[0] = Vec3(-x, -y, z);
+    pos[1] = Vec3(-x, y, z);
+    pos[2] = Vec3(x, -y, z);
+    pos[3] = Vec3(x, y, z);
 
     //カラーを1点ずつ設定
     color[0] = Vec4(1.f, 0.f, 0.f, 1.f);
@@ -179,7 +180,7 @@ void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
 
     //ワールドビュープロジェクション行列の作成
     static float yaw = 0.f;
-    yaw += 0.01f;
+    yaw += 3.f;
     Mat4 proj;
     Mat4 view;
     Mat4 m;
@@ -192,9 +193,12 @@ void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
     //平行移動行列を作成
     Mat4::createTranslation(Vec3(250.f, 50.f, 0.f), &trans);
     //回転行列を作成
-    Mat4::createRotationY(yaw, &rot);
+    Mat4::createRotationY(CC_DEGREES_TO_RADIANS(yaw), &rot);
     //スケーリング行列を作成
-    Mat4::createScale(Vec3(1.f, 1.f, 1.f), &scale);
+    static float count = 0.f;
+    count += 3.f;
+    float s = sinf(CC_DEGREES_TO_RADIANS(count));
+    Mat4::createScale(Vec3(s, s, s), &scale);
     //ワールド行列を合成
     world = trans * rot * scale;
 
