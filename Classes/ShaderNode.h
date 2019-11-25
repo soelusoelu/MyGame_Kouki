@@ -22,29 +22,32 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+#ifndef __SHADERNODE_SCENE_H__
+#define __SHADERNODE_SCENE_H__
 
 #include "cocos2d.h"
 
-class HelloWorld : public cocos2d::Scene
+class ShaderNode : public cocos2d::Node
 {
 public:
-    static cocos2d::Scene* createScene();
-
     virtual bool init();
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
     
     // implement the "static create()" method manually
-    CREATE_FUNC(HelloWorld);
+    CREATE_FUNC(ShaderNode);
 
     void draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags);
+    void onDraw(const cocos2d::Mat4& transform, uint32_t flags);
 
 private:
     cocos2d::GLProgram* m_pProgram;
     int uniform_wvp_matrix;
+    cocos2d::CustomCommand mCustomCommand;
+    cocos2d::Vec3 pos[4];
+    cocos2d::Vec4 color[4];
+
 };
 
 #endif // __HELLOWORLD_SCENE_H__

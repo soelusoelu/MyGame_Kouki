@@ -22,14 +22,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "HelloWorldScene.h"
+#include "ShaderNode.h"
 #include "SimpleAudioEngine.h"
 
 USING_NS_CC;
-
-Scene* HelloWorld::createScene() {
-    return HelloWorld::create();
-}
 
 // Print useful error message instead of segfaulting when files are not there.
 static void problemLoading(const char* filename) {
@@ -38,10 +34,10 @@ static void problemLoading(const char* filename) {
 }
 
 // on "init" you need to initialize your instance
-bool HelloWorld::init() {
+bool ShaderNode::init() {
     //////////////////////////////
     // 1. super init first
-    if (!Scene::init()) {
+    if (!Node::init()) {
         return false;
     }
 
@@ -56,7 +52,7 @@ bool HelloWorld::init() {
     auto closeItem = MenuItemImage::create(
         "CloseNormal.png",
         "CloseSelected.png",
-        CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+        CC_CALLBACK_1(ShaderNode::menuCloseCallback, this));
 
     if (closeItem == nullptr ||
         closeItem->getContentSize().width <= 0 ||
@@ -131,7 +127,7 @@ bool HelloWorld::init() {
 }
 
 
-void HelloWorld::menuCloseCallback(Ref* pSender) {
+void ShaderNode::menuCloseCallback(Ref* pSender) {
     //Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
 
@@ -143,18 +139,24 @@ void HelloWorld::menuCloseCallback(Ref* pSender) {
 
 }
 
-void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags) {
-    GLenum error;
+void ShaderNode::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags) {
+    mCustomCommand.init(_globalZOrder, transform, flags);
+    mCustomCommand.func = CC_CALLBACK_0(ShaderNode::onDraw, this, transform, flags);
+    renderer->addCommand(&mCustomCommand);
+}
+
+void ShaderNode::onDraw(const Mat4& transform, uint32_t flags) {
+    Mat4 matWVP;
+    Mat4 matProjection;
+    matProjection = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+    matWVP = matProjection * transform;
+
     //指定したフラグに対応する属性インデックスだけを有効にして、他は無効にする
     GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR/* | GL::VERTEX_ATTRIB_FLAG_TEX_COORD*/);
-    error = glGetError();
     //シェーダーを有効化する
     m_pProgram->use();
-    error = glGetError();
 
     //四角形の4頂点分の座標
-    Vec3 pos[4];
-    Vec4 color[4];
     const float x = 50.f;
     const float y = 50.f;
     const float z = 50.f;
@@ -173,41 +175,12 @@ void HelloWorld::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
 
     //指定した属性インデックスに、データを関連付ける
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, pos);
-    error = glGetError();
     //指定した属性インデックスに、データを関連付ける
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, 0, color);
-    error = glGetError();
 
-    //ワールドビュープロジェクション行列の作成
-    static float yaw = 0.f;
-    yaw += 3.f;
-    Mat4 proj;
-    Mat4 view;
-    Mat4 m;
-    Mat4 trans, scale, rot, world;
-    //プロジェクション行列(射影行列)を取得
-    proj = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    //ビュー行列を取得
-    view = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-
-    //平行移動行列を作成
-    Mat4::createTranslation(Vec3(250.f, 50.f, 0.f), &trans);
-    //回転行列を作成
-    Mat4::createRotationY(CC_DEGREES_TO_RADIANS(yaw), &rot);
-    //スケーリング行列を作成
-    static float count = 0.f;
-    count += 3.f;
-    float s = sinf(CC_DEGREES_TO_RADIANS(count));
-    Mat4::createScale(Vec3(s, s, s), &scale);
-    //ワールド行列を合成
-    world = trans * rot * scale;
-
-    //WVP行列を合成
-    m = proj * view * world;
     //合成したWVP行列をシェーダーに送る
-    glUniformMatrix4fv(uniform_wvp_matrix, 1, GL_FALSE, m.m);
+    glUniformMatrix4fv(uniform_wvp_matrix, 1, GL_FALSE, matWVP.m);
 
     //3頂点分のデータで三角形を描画する
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    error = glGetError();
 }

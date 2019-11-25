@@ -1,6 +1,6 @@
 #include "HelloShaderScene.h"
 
-#include "HelloWorldScene.h"
+#include "ShaderNode.h"
 
 USING_NS_CC;
 
@@ -77,7 +77,7 @@ bool HelloShader::init()
 	this->addChild(sprite, 0);
 
 	// HelloWorld‚ÌƒŒƒCƒ„[‚ðì¬B•`‰æ—Dæ‚Í1
-	Scene* scene = HelloWorld::create();
+	ShaderNode* scene = ShaderNode::create();
 	this->addChild(scene, 1);
 
     auto spriteA = Sprite::create("HelloWorld.png");
