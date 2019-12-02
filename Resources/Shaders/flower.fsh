@@ -1,6 +1,10 @@
 varying vec4 v_color;
+uniform vec2 center;
+uniform vec2 size_div2;
 
 void main(){
-    gl_FragColor = vec4(gl_FragCoord.x / 1024, gl_FragCoord.y / 720, 0, 1);
-    //gl_FragColor *= v_color;
+    vec2 p = gl_FragCoord.xy - center;
+    p.x /= size_div2.x / 2;
+    float col = p.x;
+    gl_FragColor = vec4(col, col, col, 1);
 }
