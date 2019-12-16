@@ -44,7 +44,7 @@ bool ShaderNode::init()
 	//uniform_sampler = glGetUniformLocation(m_pProgram->getProgram(), "sampler");
 	uniform_wvp_matrix = glGetUniformLocation(m_pProgram->getProgram(), "u_wvp_matrix");
     uniform_center = glGetUniformLocation(m_pProgram->getProgram(), "center");
-    uniform_size = glGetUniformLocation(m_pProgram->getProgram(), "size_div2");
+    uniform_size_div2 = glGetUniformLocation(m_pProgram->getProgram(), "size_div2");
 
 	m_pTexture = Director::getInstance()->getTextureCache()->addImage("texture.jpg");
 
@@ -95,7 +95,8 @@ void ShaderNode::draw(Renderer* renderer, const Mat4& transform, uint32_t flags)
 void ShaderNode::onDraw(const Mat4& transform, uint32_t /*flags*/)
 {
 	// 半透明
-	GL::blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//GL::blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GL::blendFunc(GL_ONE, GL_ONE);
 
 	//GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_TEX_COORD);
 	GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
@@ -112,8 +113,8 @@ void ShaderNode::onDraw(const Mat4& transform, uint32_t /*flags*/)
 	glUniformMatrix4fv(uniform_wvp_matrix, 1, GL_FALSE, matWVP.m);
     Vec2 pos = getPosition();
     glUniform2f(uniform_center, pos.x, pos.y);
-    Vec2 size = getContentSize();
-    glUniform2f(uniform_size, size.x, size.y);
+    Vec2 size = getContentSize() / 2;
+    glUniform2f(uniform_size_div2, size.x, size.y);
 
 	// ４頂点での描画
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
