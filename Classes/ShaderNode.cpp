@@ -100,8 +100,8 @@ void ShaderNode::draw(Renderer* renderer, const Mat4& transform, uint32_t flags)
 void ShaderNode::onDraw(const Mat4& transform, uint32_t /*flags*/)
 {
 	// 半透明
-	//GL::blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	GL::blendFunc(GL_ONE, GL_ONE);
+	GL::blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//GL::blendFunc(GL_ONE, GL_ONE);
 
 	//GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_TEX_COORD);
 	GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
