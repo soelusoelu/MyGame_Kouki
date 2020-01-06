@@ -45,6 +45,7 @@ bool ShaderNode::init()
 	uniform_wvp_matrix = glGetUniformLocation(m_pProgram->getProgram(), "u_wvp_matrix");
     uniform_center = glGetUniformLocation(m_pProgram->getProgram(), "center");
     uniform_size_div2 = glGetUniformLocation(m_pProgram->getProgram(), "size_div2");
+	uniform_time = glGetUniformLocation(m_pProgram->getProgram(), "time");
 
 	m_pTexture = Director::getInstance()->getTextureCache()->addImage("texture.jpg");
 
@@ -90,6 +91,10 @@ void ShaderNode::draw(Renderer* renderer, const Mat4& transform, uint32_t flags)
 	// ２Ｄの座標系に変換
 	matProjection = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 	matWVP = matProjection * transform;
+
+	unsigned total = _director->getTotalFrames();
+	float inter = _director->getAnimationInterval();
+	m_time = total * inter;
 }
 
 void ShaderNode::onDraw(const Mat4& transform, uint32_t /*flags*/)
@@ -115,6 +120,7 @@ void ShaderNode::onDraw(const Mat4& transform, uint32_t /*flags*/)
     glUniform2f(uniform_center, pos.x, pos.y);
     Vec2 size = getContentSize() / 2;
     glUniform2f(uniform_size_div2, size.x, size.y);
+	glUniform1f(uniform_time, m_time);
 
 	// ４頂点での描画
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

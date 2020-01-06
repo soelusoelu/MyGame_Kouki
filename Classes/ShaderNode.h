@@ -25,6 +25,8 @@ public:
     int uniform_wvp_matrix;
     int uniform_center;
     int uniform_size_div2;
+    int uniform_time;
+    float m_time;
 
     cocos2d::Texture2D* m_pTexture;
 

@@ -1,15 +1,17 @@
 varying vec4 v_color;
 uniform vec2 center;
 uniform vec2 size_div2;
+uniform float time;
 
 void main(){
+    float col = 1.0;
     vec2 p = gl_FragCoord.xy - center;
-    float col = p.x * p.x + p.y * p.y;
+
+    col = p.x * p.x + p.y * p.y;
     col /= size_div2.x * size_div2.x;
-    float angle = atan(p.y, p.x);
-    float deg = degrees(angle);
-    col += step(abs(deg), 30.0);
+    float w = sin(time * 3.14) + 0.8;
+    col /= w / 2.0 + 0.5;
     col = 1 - col;
-    col = sign(col);
-    gl_FragColor = vec4(col, col, 0, 1);
+
+    gl_FragColor = vec4(col, col, col, 1);
 }
